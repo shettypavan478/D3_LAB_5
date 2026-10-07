@@ -1,0 +1,19 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Treemap</title></head><body><div id="treemap"></div><script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script><script>
+const width=900,height=500;
+const data={name:"Data Science",children:[
+{name:"Data Sources",children:[{name:"Web Logs",value:5000},{name:"Mobile App",value:3000},{name:"CRM Export",value:2000}]},
+{name:"Data Processing",children:[{name:"Data Cleaning",value:4000},{name:"Data Transformation",value:2500},{name:"Feature Engineering",value:3000}]},
+{name:"Machine Learning",children:[{name:"Model Training",value:4500},{name:"Evaluation",value:2500},{name:"Deployment",value:2000}]},
+{name:"Visualization",children:[{name:"EDA",value:3000},{name:"Dashboards",value:2000}]}]};
+const svg=d3.select("#treemap").append("svg").attr("width",width).attr("height",height).style("border","1px solid #ccc");
+const root=d3.hierarchy(data).sum(d=>d.value).sort((a,b)=>b.value-a.value);
+d3.treemap().size([width,height]).paddingOuter(5).paddingInner(3).paddingTop(25)(root);
+const color=d3.scaleOrdinal(d3.schemeTableau10);
+const groups=svg.selectAll(".group").data(root.children).join("g").attr("class","group");
+groups.append("rect").attr("x",d=>d.x0).attr("y",d=>d.y0).attr("width",d=>d.x1-d.x0).attr("height",d=>d.y1-d.y0).attr("fill",d=>color(d.data.name)).attr("fill-opacity",0.25).attr("stroke",d=>color(d.data.name)).attr("stroke-width",2);
+groups.append("text").attr("x",d=>d.x0+6).attr("y",d=>d.y0+18).text(d=>d.data.name).attr("font-size",14).attr("font-weight","bold");
+const leaves=svg.selectAll(".leaf").data(root.leaves()).join("g").attr("class","leaf");
+leaves.append("rect").attr("x",d=>d.x0).attr("y",d=>d.y0).attr("width",d=>d.x1-d.x0).attr("height",d=>d.y1-d.y0).attr("fill",d=>color(d.parent.data.name)).attr("fill-opacity",0.8).attr("stroke","white").attr("stroke-width",1).on("mouseover",function(){d3.select(this).transition().duration(200).attr("fill-opacity",1).attr("stroke","black").attr("stroke-width",2);}).on("mouseout",function(){d3.select(this).transition().duration(200).attr("fill-opacity",0.8).attr("stroke","white").attr("stroke-width",1);});
+leaves.append("text").attr("x",d=>d.x0+5).attr("y",d=>d.y0+18).text(d=>d.data.name).attr("font-size",11).attr("fill","black");
+leaves.append("text").attr("x",d=>d.x0+5).attr("y",d=>d.y0+33).text(d=>d.value).attr("font-size",10).attr("fill","black");
+</script></body></html>
